@@ -16,6 +16,8 @@ if 'answered_words' not in st.session_state:
     st.session_state.answered_words = []
 if 'audio_played' not in st.session_state:
     st.session_state.audio_played = False
+if 'user_input' not in st.session_state:
+    st.session_state.user_input = ""  # Estado para el campo de texto
 
 # Función para generar y reproducir el audio de la palabra
 async def generate_audio(word, voice="en-US-AriaNeural"):
@@ -26,7 +28,7 @@ async def generate_audio(word, voice="en-US-AriaNeural"):
 def play_audio(file_path):
     with open(file_path, "rb") as audio_file:
         audio_bytes = audio_file.read()
-    st.audio(audio_bytes, format="audio/mp3")
+    st.audio(audio_bytes, format="audio/mp3", autoplay=True)
 
 # Lógica principal
 def main():
@@ -43,9 +45,11 @@ def main():
     if st.session_state.audio_played:
         play_audio("output.mp3")
 
-    # Campo de texto para que el usuario ingrese la palabra
-    user_input = st.text_input("Escribe la palabra que escuchaste:")
-
+    # Campo de texto para que el usuario ingrese la palabra, con valor almacenado en session_state
+    user_input = st.text_input("Escribe la palabra que escuchaste:", 
+                               value=st.session_state.user_input, 
+                               key="input_text",
+                               on_change=lambda: st.session_state.update({"user_input": st.session_state.input_text}))
     # Botón de envío para validar la palabra ingresada
     if st.button("Enviar"):
         if user_input:
@@ -64,7 +68,8 @@ def main():
             # Avanzar a la siguiente palabra
             st.session_state.current_word += 1
             st.session_state.audio_played = False  # Reiniciar el estado del audio
-            
+            st.session_state.user_input = ""  # Borrar el campo de texto
+
             # Revisar si hay más palabras
             if st.session_state.current_word >= st.session_state.total:
                 st.write(f"Juego terminado. Puntaje: {st.session_state.score}/{st.session_state.total}")
