@@ -14,17 +14,20 @@ if 'total' not in st.session_state:
     st.session_state.total = len(word_list)
 if 'answered_words' not in st.session_state:
     st.session_state.answered_words = []
+if 'audio_generated' not in st.session_state:
+    st.session_state.audio_generated = False
 
 # Función para generar y reproducir el audio de la palabra
-async def generate_and_play_audio(word, voice="en-US-AriaNeural"):
+async def generate_and_play_audio(word, voice="en-US-AvaNeural"):
     tts = edge_tts.Communicate(word, voice)
     await tts.save("output.mp3")
+    st.session_state.audio_generated = True
     play_audio("output.mp3")
 
 def play_audio(file_path):
     with open(file_path, "rb") as audio_file:
         audio_bytes = audio_file.read()
-    st.audio(audio_bytes, format="audio/mp3", autoplay=True)
+    st.audio(audio_bytes, format="audio/mp3")
 
 # Lógica principal
 def main():
@@ -37,9 +40,14 @@ def main():
     if st.button("Reproducir palabra"):
         asyncio.run(generate_and_play_audio(current_word))
 
+    # Mostrar el reproductor solo si el audio ha sido generado
+    if st.session_state.audio_generated:
+        play_audio("output.mp3")
+
     # Campo de texto para que el usuario ingrese la palabra
     user_input = st.text_input("Escribe la palabra que escuchaste:")
 
+    # Control de botón enviar
     if st.button("Enviar"):
         if user_input:
             # Verificar si es correcto
@@ -56,6 +64,7 @@ def main():
 
             # Avanzar a la siguiente palabra
             st.session_state.current_word += 1
+            st.session_state.audio_generated = False  # Reiniciar el estado del audio
             
             # Revisar si hay más palabras
             if st.session_state.current_word >= st.session_state.total:
