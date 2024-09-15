@@ -3,7 +3,7 @@ import edge_tts
 import asyncio
 
 # Lista predefinida de palabras
-word_list = ["apple", "banana", "orange", "grape", "pineapple"]
+word_list = ["apple", "banana", "orange"]
 
 # Estado inicial para seguir la palabra actual
 if 'current_word' not in st.session_state:
@@ -29,6 +29,14 @@ def play_audio(file_path):
     with open(file_path, "rb") as audio_file:
         audio_bytes = audio_file.read()
     st.audio(audio_bytes, format="audio/mp3", autoplay=True)
+
+# Función para reiniciar el juego
+def reset_game():
+    st.session_state.current_word = 0
+    st.session_state.score = 0
+    st.session_state.answered_words = []
+    st.session_state.audio_played = False
+    st.session_state.user_input = ""
 
 # Lógica principal
 def main():
@@ -73,9 +81,9 @@ def main():
             # Revisar si hay más palabras
             if st.session_state.current_word >= st.session_state.total:
                 st.write(f"Juego terminado. Puntaje: {st.session_state.score}/{st.session_state.total}")
-                st.session_state.current_word = 0  # Reiniciar para empezar de nuevo
-                st.session_state.score = 0  # Reiniciar puntaje
-                st.session_state.answered_words = []  # Reiniciar el historial de palabras
+                # Botón para reiniciar el juego
+                if st.button("Reiniciar"):
+                    reset_game()
         else:
             st.warning("Por favor, ingresa una palabra.")
 
