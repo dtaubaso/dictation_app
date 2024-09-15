@@ -12,16 +12,19 @@ if 'score' not in st.session_state:
     st.session_state.score = 0
 if 'total' not in st.session_state:
     st.session_state.total = len(word_list)
+if 'answered_words' not in st.session_state:
+    st.session_state.answered_words = []
 
-# Función para generar el audio de la palabra
-async def generate_audio(word, voice="en-US-AvaNeural"):
+# Función para generar y reproducir el audio de la palabra
+async def generate_and_play_audio(word, voice="en-US-AriaNeural"):
     tts = edge_tts.Communicate(word, voice)
     await tts.save("output.mp3")
+    play_audio("output.mp3")
 
 def play_audio(file_path):
     with open(file_path, "rb") as audio_file:
         audio_bytes = audio_file.read()
-    st.audio(audio_bytes, format="audio/mp3")
+    st.audio(audio_bytes, format="audio/mp3", autoplay=True)
 
 # Lógica principal
 def main():
@@ -30,15 +33,14 @@ def main():
     # Mostrar la palabra actual
     current_word = word_list[st.session_state.current_word]
 
-    # Reproducir el audio de la palabra actual
+    # Reproducir el audio de la palabra actual al presionar el botón
     if st.button("Reproducir palabra"):
-        asyncio.run(generate_audio(current_word))
-        play_audio("output.mp3")
-    
+        asyncio.run(generate_and_play_audio(current_word))
+
     # Campo de texto para que el usuario ingrese la palabra
     user_input = st.text_input("Escribe la palabra que escuchaste:")
 
-    if st.button("Enviar") or st.session_state.get("enter_pressed"):
+    if st.button("Enviar"):
         if user_input:
             # Verificar si es correcto
             if user_input.lower() == current_word.lower():
@@ -46,7 +48,12 @@ def main():
                 st.session_state.score += 1
             else:
                 st.error(f"Incorrecto. La palabra correcta es: {current_word}")
-            
+
+            # Guardar la palabra y si fue correcta o no
+            st.session_state.answered_words.append(
+                {"word": current_word, "input": user_input, "status": "Correcta" if user_input.lower() == current_word.lower() else "Incorrecta"}
+            )
+
             # Avanzar a la siguiente palabra
             st.session_state.current_word += 1
             
@@ -55,8 +62,15 @@ def main():
                 st.write(f"Juego terminado. Puntaje: {st.session_state.score}/{st.session_state.total}")
                 st.session_state.current_word = 0  # Reiniciar para empezar de nuevo
                 st.session_state.score = 0  # Reiniciar puntaje
+                st.session_state.answered_words = []  # Reiniciar el historial de palabras
         else:
             st.warning("Por favor, ingresa una palabra.")
+
+    # Mostrar el historial de palabras ya ingresadas
+    if st.session_state.answered_words:
+        st.subheader("Palabras ya respondidas")
+        for entry in st.session_state.answered_words:
+            st.write(f"""Palabra: {entry['word']} | Tu respuesta "{entry['input']}" es {entry['status']}""")
 
 # Ejecutar la app
 if __name__ == "__main__":
