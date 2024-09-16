@@ -2,6 +2,8 @@ import streamlit as st
 import edge_tts, random
 import asyncio, gspread, json, base64
 
+st.set_page_config(page_title="Dictation App", page_icon=":eyes:")
+
 credentials = credentials = base64.b64decode(st.secrets['CREDENTIALS'])
 
 def load_wordlist():
@@ -52,7 +54,10 @@ def reset_game():
 
 # Lógica principal
 def main():
-    st.title("Aprender a Escribir en Inglés")
+
+    # Agregar una imagen antes del título
+    st.image('https://i.imgur.com/ALJYlX1.png')
+    st.title("Dictation App")
 
     if not st.session_state.game_over:  # Mostrar solo si el juego no ha terminado
         if st.session_state.current_word < len(word_list):
@@ -62,7 +67,7 @@ def main():
     # current_word = word_list[st.session_state.current_word]
 
             # Botón para reproducir la palabra
-            if st.button("Reproducir palabra"):
+            if st.button("Escuchar palabra"):
                 asyncio.run(generate_audio(current_word))  # Genera el audio
 
             # Solo reproducir el audio si se ha generado
@@ -101,7 +106,7 @@ def main():
         # Mostrar el resultado del juego si terminó
     if st.session_state.current_word >= len(word_list) or st.session_state.game_over:
         st.session_state.game_over = True
-        st.write(f"Juego terminado. Puntaje: {st.session_state.score}/{len(word_list)}")
+        st.subheader(f":blue[Juego terminado. Puntaje: {st.session_state.score}/{len(word_list)}]")
         
         # Botón para reiniciar el juego
         if st.button("Reiniciar"):
@@ -112,7 +117,7 @@ def main():
     if st.session_state.answered_words:
         st.write("**Palabras ya respondidas**")
         for entry in st.session_state.answered_words:
-            st.write(f"Palabra: {entry['word']} | Tu respuesta: {entry['input']} | Estado: {entry['status']}")
+            st.write(f"""Palabra: **{entry['word']}** | Tu respuesta "{entry['input']}" es {entry['status']}""")
 
 # Ejecutar la app
 if __name__ == "__main__":
