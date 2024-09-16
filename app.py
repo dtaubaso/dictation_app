@@ -2,7 +2,7 @@ import streamlit as st
 import edge_tts, random
 import asyncio, gspread, json, base64
 
-st.set_page_config(page_title="Dictation App", page_icon=":eyes:")
+st.set_page_config(page_title="Dictation App", page_icon=":uk:")
 
 credentials = credentials = base64.b64decode(st.secrets['CREDENTIALS'])
 
@@ -91,8 +91,8 @@ def main():
 
                     # Guardar la palabra y si fue correcta o no
                     st.session_state.answered_words.append(
-                        {"word": current_word, "input": user_input, "status": "Correcto" 
-                         if user_input.lower() == current_word.lower() else "Incorrecto"}
+                        {"word": current_word, "input": user_input, "status": "correcta" 
+                         if user_input.lower() == current_word.lower() else "incorrecta"}
                     )
 
                     # Avanzar a la siguiente palabra
@@ -106,7 +106,7 @@ def main():
         # Mostrar el resultado del juego si terminó
     if st.session_state.current_word >= len(word_list) or st.session_state.game_over:
         st.session_state.game_over = True
-        st.subheader(f":blue[Juego terminado. Puntaje: {st.session_state.score}/{len(word_list)}]")
+        st.subheader(f":red[Juego terminado. Puntaje: {st.session_state.score}/{len(word_list)}]")
         
         # Botón para reiniciar el juego
         if st.button("Reiniciar"):
@@ -115,7 +115,7 @@ def main():
 
     # Mostrar el historial de palabras ya ingresadas
     if st.session_state.answered_words:
-        st.write("**Palabras ya respondidas**")
+        st.write(":blue[**Palabras ya respondidas**]")
         for entry in st.session_state.answered_words:
             st.write(f"""Palabra: **{entry['word']}** | Tu respuesta "{entry['input']}" es {entry['status']}""")
 
