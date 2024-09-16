@@ -5,7 +5,6 @@ import asyncio, gspread, json, base64
 credentials = credentials = base64.b64decode(st.secrets['CREDENTIALS'])
 
 def load_wordlist():
-    print("descargando de sheets")
     gc = gspread.service_account_from_dict(json.loads(credentials))
     sheet_id = "1hXHDMMAFB0zosJ_6Aqbp9UIaCU_U9KY3bwac9iQxiWo"
     word_list = gc.open_by_key(sheet_id).get_worksheet(0).col_values(1)
