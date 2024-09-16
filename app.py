@@ -1,9 +1,19 @@
 import streamlit as st
-import edge_tts
-import asyncio
+import edge_tts, random
+import asyncio, gspread, json, base64
 
-# Lista predefinida de palabras
-word_list = ["apple", "banana", "orange"]
+credentials = credentials = base64.b64decode(st.secrets['CREDENTIALS'])
+
+def load_wordlist():
+    print("descargando de sheets")
+    gc = gspread.service_account_from_dict(json.loads(credentials))
+    sheet_id = "1hXHDMMAFB0zosJ_6Aqbp9UIaCU_U9KY3bwac9iQxiWo"
+    word_list = gc.open_by_key(sheet_id).get_worksheet(0).col_values(1)
+    return word_list
+
+if 'word_list' not in st.session_state:
+    st.session_state.word_list = load_wordlist()
+word_list = st.session_state.word_list  # Usamos la lista de palabras descargada una vez
 
 # Estado inicial para seguir la palabra actual
 if 'current_word' not in st.session_state:
