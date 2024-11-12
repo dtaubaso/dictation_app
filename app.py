@@ -83,7 +83,7 @@ def main():
             if st.button("Enviar"):
                 if user_input:
                     # Verificar si es correcto
-                    if user_input.lower() == current_word.lower():
+                    if user_input.lower().strip() == current_word.lower():
                         st.success(f"¡Correcto! La palabra es: {current_word}")
                         st.session_state.score += 1
                     else:
